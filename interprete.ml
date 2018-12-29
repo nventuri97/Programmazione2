@@ -29,3 +29,70 @@ let typecheck (s: string) (v: evT) : bool = match s with
             | _ -> failwith("not a valid type");;
 
 (*funzioni primitive*)
+let prod x y = if (typecheck "int" x) && (typecheck "int" y)
+               then (match (x,y) with
+                    (Int(n),Int(m))-> Int(n*m))
+               else failwith("Type error");
+
+let sum x y = if (typecheck "int" x) && (typecheck "int" y)
+               then (match (x,y) with
+                    (Int(n),Int(m))-> Int(n+m))
+               else failwith("Type error");
+
+let diff x y = if (typecheck "int" x) && (typecheck "int" y)
+               then (match (x,y) with
+                    (Int(n),Int(m))-> Int(n-m))
+               else failwith("Type error");
+
+let eq x y = if (typecheck "int" x) && (typecheck "int" y)
+             then (match (x,y) with
+                    (Int(n),Int(m))-> Bool(n=m))
+             else failwith("Type error");
+
+let minus x = if (typecheck "int" x)
+              then (match x with
+                    Int(n)-> Int(-n))
+              else failwith("Type error");;
+
+let isZero x = if (typecheck "int" x)
+               then (match x with
+                    Int(n) -> Bool(n=0))
+               else failwith("Type error");;
+
+let oR a b = if (typecheck "bool" a) && (typecheck "bool" b)
+             then (match (a,b) with
+                    (Bool(n),Bool(m))-> Bool(n||m))
+             else failwith("Type error");;
+
+let aNd a b = if (typecheck "bool" a) && (typecheck "bool" b)
+              then (match (a,b) with
+                    (Bool(n),Bool(m))-> Bool(n&&m))
+              else failwith("Type error");;
+
+let non a = if (typecheck "bool" a)
+            then (match a with
+                    Bool(true)-> Bool(false)
+                    | Bool(false) -> Bool(true))
+            else failwith("Type error");;
+
+(*Interprete*)
+let eval (e: exp) (r: evT env) : evT = matche e with
+    Eint x -> Int x
+    | Ebool a -> Bool a
+    | IsZero x -> isZero(eval x r)
+    | Den i -> applyenv r i
+    | Prod(x,y) -> prod (eval x r) (eval y r)
+    | Sum(x,y) -> sum (eval x r) (eval y r)
+    | Diff(x,y) -> diff (eval x r) (eval y r)
+    | Eq (x,y) -> eq (eval x r) (eval y r)
+    | Minus x -> minus (eval x r)
+    | And(a,b) -> aNd (eval a r) (eval b r)
+    | Or(a,b) -> oR (eval a r) (eval b r)
+    | Not a -> non (eval a r)
+    | Ifthenelse(e1,e2,e3) -> let g = (eval e1 r)
+             if (typecheck "bool" g)
+                then (if (g=Bool(true)) then (eval e2 r) else (eval e3 r))
+                else failwith("Non boolean guard")
+    | Let(i,e1,e2) -> eval e2 (bind r i (eval e1 r))
+    | Fun(i,a) -> FunVal(i,a,r)
+    | FunCall(f, eArg)
