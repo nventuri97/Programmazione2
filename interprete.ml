@@ -95,4 +95,18 @@ let eval (e: exp) (r: evT env) : evT = matche e with
                 else failwith("Non boolean guard")
     | Let(i,e1,e2) -> eval e2 (bind r i (eval e1 r))
     | Fun(i,a) -> FunVal(i,a,r)
-    | FunCall(f, eArg)
+    | FunCall(f, eArg) ->
+        let fClosure = (eval f r) in
+            (match fClosure with
+                FunVal(arg, fBody, fDecEnv)-> eval fBody (bind fDecEnv arg (eval eArg r))
+                | RecFunVal(g, (arg, fBody, fDecEnv))->
+                    let aVal = (eval eArg r) in
+                        let rEnv = (bind fDecEnv g fClosure) in
+                            let aEnv = (bind rEnv arg aVal) in
+                                eval fBody aEnv
+                | _ -> failwith("non functional value"))
+    | Letrec(f, funDef, letBody) ->
+        		(match funDef with
+            		Fun(i, fBody) -> let r1 = (bind r f (RecFunVal(f, (i, fBody, r)))) in
+                         			                eval letBody r1 |
+            		_ -> failwith("non functional def"));;
