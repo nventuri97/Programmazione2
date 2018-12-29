@@ -111,9 +111,9 @@ let eval (e: exp) (r: evT env) : evT = match e with
                          			                eval letBody r1 |
             		_ -> failwith("non functional def"))
     | Diz(lst) -> DizVal(evalList lst r)
-    | Ret(e1, lst, i) -> let d = (eval e1 r) in
+    | Ret(e1, id) -> let d = (eval e1 r) in
                         (match d with
-                            DizVal(lst)-> 
+                            DizVal(ls) -> lookup id ls
                             | _ -> failwith("not a dictionary"))
 
 and evalList (lst: (ide*exp) list) (r: evT env) : evT = match lst with
@@ -122,3 +122,7 @@ and evalList (lst: (ide*exp) list) (r: evT env) : evT = match lst with
                 (id, arg) -> (id, eval arg r) :: evalList xs r
                 | _ -> failwith("wrong dictionary pair"))
     | _ -> failwith("wrong dictionary list")
+and lookup (id: ide) (ls: ide*evT list) : evT = match ls with
+    [] -> Unbound
+    | (id1, val)::ids -> if (id=id1) then val else lookup id ids
+    | _ -> failwith("wrong dictionary field")
