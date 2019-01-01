@@ -6,7 +6,7 @@ type exp = Eint of int | Ebool of bool | Den of ide | Prod of exp * exp | Sum of
 	       Eq of exp * exp | Minus of exp | IsZero of exp | Or of exp * exp | And of exp * exp | Not of exp |
 	       Ifthenelse of exp * exp * exp | Let of ide * exp * exp | Fun of ide * exp | FunCall of exp * exp |
 	       Letrec of ide * exp * exp | Diz of elDiz list | Ret of exp * ide | Rem of exp * ide
-and elDiz = ide * exp;;
+and elDiz = (ide * exp);;
 
 (* Ambiente polimorfo *)
 type 't env = ide -> 't;;
@@ -17,7 +17,8 @@ let bind (r: 't env) (i:ide) (v: 't) = function x -> if x = i then v else applye
 (* tipi esprimibili *)
 type evT = Int of int | Bool of bool | Unbound | FunVal of evFun | RecFunVal of ide * evFun | DizVal of evDiz list
 and evFun = ide * exp * evT env
-and evDiz= ide * evT;;
+and evDiz= (ide * evT);;
+
 (*rts*)
 (*type checking*)
 let typecheck (s: string) (v: evT) : bool = match s with
