@@ -5,7 +5,7 @@ type ide = string ;;
 type exp = Eint of int | Ebool of bool | Den of ide | Prod of exp * exp | Sum of exp * exp | Diff of exp * exp |
 	       Eq of exp * exp | Minus of exp | IsZero of exp | Or of exp * exp | And of exp * exp | Not of exp |
 	       Ifthenelse of exp * exp * exp | Let of ide * exp * exp | Fun of ide * exp | FunCall of exp * exp |
-	       Letrec of ide * exp * exp | Diz of elDiz list | Ret of exp * ide | Rem of exp * ide
+	       Letrec of ide * exp * exp | Diz of elDiz list | DizRet of exp * ide | DizRem of exp * ide
 and elDiz = (ide * exp);;
 
 (* Ambiente polimorfo *)
@@ -113,13 +113,22 @@ let rec eval (e: exp) (r: evT env) : evT = match e with
                          			                eval letBody r1 |
             		_ -> failwith("non functional def"))
     | Diz(lst) -> DizVal(evalList lst r)
-    | Ret(e1, id) -> let d = (eval e1 r) in
+    | DizRet(e1, id) -> let d = (eval e1 r) in
                         (match d with
                             DizVal(ls) -> lookup id ls
                             | _ -> failwith("non dictionary value"))
-    | Rem(e1, id) -> let d = (eval e1 r) in
+    | DizRem(e1, id) -> let d = (eval e1 r) in
 	 					(match d with
 							DizVal(ls) -> remove id ls
+							| _ -> failwith("non dictionary value"))
+	| DizAdd(e1, v) -> let d = (eval e1 r) in
+						(match d with
+							DizVal(ls) -> (match v with
+											(id,val) -> if (not inside id ls)
+														then (id, eval val r)::ls
+														else let ls1 = remove id ls in
+															(id, eval val r)::ls1
+											| _ -> failwith("non dictionary pair"))
 							| _ -> failwith("non dictionary value"))
 
 and evalList (lst: (ide*exp) list) (r: evT env) : evT = match lst with
@@ -137,4 +146,9 @@ and lookup (id: ide) (ls: ide*evT list) : evT = match ls with
 and remove (id: ide) (ls: ide*evT list) : evT = match ls with
 	[] -> Unbound
 	| (id1,x)::ids -> if(id=id1) then ids else remove id ids
+	| _ -> failwith("wrong dictionary list")
+
+and inside (id: ide) (ls: ide*evT list): bool = match ls with
+	[] -> false
+	| x:xs -> if(id=x) then true else inside id xs
 	| _ -> failwith("wrong dictionary list")
