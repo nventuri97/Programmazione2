@@ -119,34 +119,35 @@ let rec eval (e: exp) (r: evT env) : evT = match e with
                             | _ -> failwith("non dictionary value"))
     | DizRem(e1, id) -> let d = (eval e1 r) in
 	 					(match d with
-							DizVal(ls) -> remove id ls
+							DizVal(ls) -> let g = (evalList ls r) in
+											remove id g
 							| _ -> failwith("non dictionary value"))
-	| DizAdd(e1, id, val) -> let d = (eval e1 r) in
+	(*)| DizAdd(e1, id, val) -> let d = (eval e1 r) in
 						(match d with
 							DizVal(ls) -> if (not inside id ls)
 										  then DizVal((id, eval val r)::ls)
 										  else let ls1 = remove id ls in
 												DizVal((id, eval val r)::ls1)
-							| _ -> failwith("non dictionary value"))
+							| _ -> failwith("non dictionary value"))*)
 
-and evalList (lst: (ide*exp) list) (r: evT env) : id*evT list= match lst with
+and evalList (lst: elDiz list) (r: evT env) : evDiz list= match lst with
     | [] -> []
-    | (x,y)::xs -> (match eval (x,y) r with
+    | (x,y)::xs -> (match (x,y) with
                 (id, arg) -> (id, eval arg r) :: evalList xs r
                 | _ -> failwith("non dictionary value"))
     | _ -> failwith("wrong dictionary list")
 
-and lookup (id: ide) (ls: ide*evT list) : evT = match ls with
+and lookup (id: ide) (ls: evDiz list) : evT = match ls with
     [] -> Unbound
     | (id1, x)::ids -> if (id=id1) then x else lookup id ids
     | _ -> failwith("wrong dictionary field")
 
-and remove (id: ide) (ls: ide*evT list) : evT = match ls with
+and remove (id: ide) (ls: evDiz list) : evDiz list = match ls with
 	[] -> Unbound
 	| (id1,x)::ids -> if(id=id1) then ids else remove id ids
 	| _ -> failwith("wrong dictionary list")
 
 and inside (id: ide) (ls: ide*evT list): bool = match ls with
 	[] -> false
-	| x:xs -> if(id=x) then true else inside id xs
+	| x::xs -> if(id=x) then true else inside id xs
 	| _ -> failwith("wrong dictionary list")
