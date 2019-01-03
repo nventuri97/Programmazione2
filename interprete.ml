@@ -5,7 +5,8 @@ type ide = string ;;
 type exp = Eint of int | Ebool of bool | Den of ide | Prod of exp * exp | Sum of exp * exp | Diff of exp * exp |
 	       Eq of exp * exp | Minus of exp | IsZero of exp | Or of exp * exp | And of exp * exp | Not of exp |
 	       Ifthenelse of exp * exp * exp | Let of ide * exp * exp | Fun of ide * exp | FunCall of exp * exp |
-	       Letrec of ide * exp * exp | Diz of (ide * exp) list | DizRet of exp * ide | DizRem of exp * ide | DizAdd of exp * ide * exp;;
+	       Letrec of ide * exp * exp | Diz of (ide * exp) list | DizRet of exp * ide | DizRem of exp * ide |
+		   DizAdd of exp * ide * exp | DizClear of exp | ApplyOver of exp * exp;;
 
 (* Ambiente polimorfo *)
 type 't env = ide -> 't;;
@@ -126,6 +127,16 @@ let rec eval (e: exp) (r: evT env) : evT = match e with
 										  else let ls1 = remove id ls in
 												DizVal((id, eval e2 r)::ls1)
 							| _ -> failwith("non dictionary value"))
+	| DizClear(e1) -> let d = (eval e1 r) in
+						(match d with
+							DizVal(ls) -> DizVal([])
+							| _ -> failwith("non dictionary value"))
+	| ApplyOver(f,e1) -> let d = (eval e1 r) in
+						match d with
+							DizVal(ls) -> let g = (eval f r) in
+											apply g ls
+							| _-> failwith("non dictionary value")
+
 
 and evalList (lst: (ide * exp) list) (r: evT env) : (ide * evT) list= match lst with
     | [] -> []
@@ -147,4 +158,22 @@ and remove (id: ide) (ls: (ide * evT) list) : (ide * evT) list = match ls with
 and inside (id: ide) (ls: (ide * evT) list): bool = match ls with
 	[] -> false
 	| (x,v)::xs -> if(id=x) then true else inside id xs
+	| _ -> failwith("wrong dictionary list")
+
+and apply (f: evFun) (ls: (ide * evT) list) : (ide * evT) list = match ls with
+	[] -> []
+	| (id,val)::ids ->
 	| _ -> failwith("wrong dictionary list");;
+
+(* =================  TESTS  ================= *)
+
+(* basico: no let *)
+let env0 = emptyenv Unbound;;
+
+let e1 = FunCall(Fun("y", Sum(Den "y", Eint 1)), Eint 3);;
+
+eval e1 env0;;
+
+let e2 = FunCall(Let("x", Eint 2, Fun("y", Sum(Den "y", Den "x"))), Eint 3);;
+
+eval e2 env0;;
