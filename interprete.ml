@@ -5,8 +5,7 @@ type ide = string ;;
 type exp = Eint of int | Ebool of bool | Den of ide | Prod of exp * exp | Sum of exp * exp | Diff of exp * exp |
 	       Eq of exp * exp | Minus of exp | IsZero of exp | Or of exp * exp | And of exp * exp | Not of exp |
 	       Ifthenelse of exp * exp * exp | Let of ide * exp * exp | Fun of ide * exp | FunCall of exp * exp |
-	       Letrec of ide * exp * exp | Diz of elDiz list | DizRet of exp * ide | DizRem of exp * ide | DizAdd of exp * ide * exp
-and elDiz = (ide * exp);;
+	       Letrec of ide * exp * exp | Diz of (ide * exp) list | DizRet of exp * ide | DizRem of exp * ide | DizAdd of exp * ide * exp;;
 
 (* Ambiente polimorfo *)
 type 't env = ide -> 't;;
@@ -15,9 +14,8 @@ let applyenv (r: 't env) (i: ide) = r i;;
 let bind (r: 't env) (i:ide) (v: 't) = function x -> if x = i then v else applyenv r i;;
 
 (* tipi esprimibili *)
-type evT = Int of int | Bool of bool | Unbound | FunVal of evFun | RecFunVal of ide * evFun | DizVal of evDiz list
-and evFun = ide * exp * evT env
-and evDiz= (ide * evT);;
+type evT = Int of int | Bool of bool | Unbound | FunVal of evFun | RecFunVal of ide * evFun | DizVal of (ide * evT) list
+and evFun = ide * exp * evT env;;
 
 (*rts*)
 (*type checking*)
@@ -119,8 +117,7 @@ let rec eval (e: exp) (r: evT env) : evT = match e with
                             | _ -> failwith("non dictionary value"))
     | DizRem(e1, id) -> let d = (eval e1 r) in
 	 					(match d with
-							DizVal(ls) -> let g = (evalList ls r) in
-											remove id g
+							DizVal(ls) -> remove id ls
 							| _ -> failwith("non dictionary value"))
 	(*)| DizAdd(e1, id, val) -> let d = (eval e1 r) in
 						(match d with
@@ -130,24 +127,24 @@ let rec eval (e: exp) (r: evT env) : evT = match e with
 												DizVal((id, eval val r)::ls1)
 							| _ -> failwith("non dictionary value"))*)
 
-and evalList (lst: elDiz list) (r: evT env) : evDiz list= match lst with
+and evalList (lst: (ide * exp) list) (r: evT env) : (ide * evT) list= match lst with
     | [] -> []
     | (x,y)::xs -> (match (x,y) with
                 (id, arg) -> (id, eval arg r) :: evalList xs r
                 | _ -> failwith("non dictionary value"))
     | _ -> failwith("wrong dictionary list")
 
-and lookup (id: ide) (ls: evDiz list) : evT = match ls with
+and lookup (id: ide) (ls: (ide * evT) list) : evT = match ls with
     [] -> Unbound
     | (id1, x)::ids -> if (id=id1) then x else lookup id ids
     | _ -> failwith("wrong dictionary field")
 
-and remove (id: ide) (ls: evDiz list) : evDiz list = match ls with
+and remove (id: ide) (ls: (ide * evT) list) : (ide * evT) list = match ls with
 	[] -> Unbound
 	| (id1,x)::ids -> if(id=id1) then ids else remove id ids
 	| _ -> failwith("wrong dictionary list")
 
-and inside (id: ide) (ls: ide*evT list): bool = match ls with
+and inside (id: ide) (ls: ide * evT list): bool = match ls with
 	[] -> false
 	| x::xs -> if(id=x) then true else inside id xs
-	| _ -> failwith("wrong dictionary list")
+	| _ -> failwith("wrong dictionary list");;
