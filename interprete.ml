@@ -119,13 +119,13 @@ let rec eval (e: exp) (r: evT env) : evT = match e with
 	 					(match d with
 							DizVal(ls) -> DizVal(remove id ls)
 							| _ -> failwith("non dictionary value"))
-	(*| DizAdd(e1, id, val) -> let d = (eval e1 r) in
+	| DizAdd(e1, id, e2) -> let d = (eval e1 r) in
 						(match d with
-							DizVal(ls) -> if (not inside id ls)
-										  then DizVal((id, eval val r)::ls)
+							DizVal(ls) -> if not(inside id ls)
+										  then DizVal((id, eval e2 r)::ls)
 										  else let ls1 = remove id ls in
-												DizVal((id, eval val r)::ls1)
-							| _ -> failwith("non dictionary value"))*)
+												DizVal((id, eval e2 r)::ls1)
+							| _ -> failwith("non dictionary value"))
 
 and evalList (lst: (ide * exp) list) (r: evT env) : (ide * evT) list= match lst with
     | [] -> []
