@@ -134,7 +134,8 @@ let rec eval (e: exp) (r: evT env) : evT = match e with
 	| ApplyOver(f,e1) -> let d = (eval e1 r) in
 						match d with
 							DizVal(ls) -> let g = (eval f r) in
-											apply g ls
+											let ls1 = apply g ls r in
+												DizVal(ls1)
 							| _-> failwith("non dictionary value")
 
 
@@ -160,10 +161,19 @@ and inside (id: ide) (ls: (ide * evT) list): bool = match ls with
 	| (x,v)::xs -> if(id=x) then true else inside id xs
 	| _ -> failwith("wrong dictionary list")
 
-and apply (f: evFun) (ls: (ide * evT) list) : (ide * evT) list = match ls with
+and apply (f: evT) (ls: (ide * evT) list) (r: evT env): (ide * evT) list = match ls with
 	[] -> []
-	| (id,val)::ids ->
-	| _ -> failwith("wrong dictionary list");;
+	| (id,v)::ids -> (id, funCallEv f v r) :: apply f ids r
+	| _ -> failwith("wrong dictionary list")
+
+and funCallEv (f: evT) (eArg: evT) (r: evT env): evT =
+	let fClosure = f in
+		(match fClosure with
+			FunVal(arg, fBody, fDecEnv)-> eval fBody (bind fDecEnv arg eArg)
+			| RecFunVal(g, (arg, fBody, fDecEnv))->
+					let rEnv = (bind fDecEnv g fClosure) in
+						let aEnv = (bind rEnv arg eArg) in
+							eval fBody aEnv);;
 
 (* =================  TESTS  ================= *)
 
