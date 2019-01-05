@@ -2,7 +2,7 @@
 type ide = string ;;
 
 (* Espressioni *)
-type exp = Eint of int | Ebool of bool | Den of ide | Prod of exp * exp | Sum of exp * exp | Diff of exp * exp |
+type exp = Eint of int | Ebool of bool | Estring of string | Den of ide | Prod of exp * exp | Sum of exp * exp | Diff of exp * exp |
 	       Eq of exp * exp | Minus of exp | IsZero of exp | Or of exp * exp | And of exp * exp | Not of exp |
 	       Ifthenelse of exp * exp * exp | Let of ide * exp * exp | Fun of ide * exp | FunCall of exp * exp |
 	       Letrec of ide * exp * exp | Diz of (ide * exp) list | DizRet of exp * ide | DizRem of exp * ide |
@@ -15,7 +15,7 @@ let applyenv (r: 't env) (i: ide) = r i;;
 let bind (r: 't env) (i:ide) (v: 't) = function x -> if x = i then v else applyenv r i;;
 
 (* tipi esprimibili *)
-type evT = Int of int | Bool of bool | Unbound | FunVal of evFun | RecFunVal of ide * evFun | DizVal of (ide * evT) list
+type evT = Int of int | Bool of bool | String of string | Unbound | FunVal of evFun | RecFunVal of ide * evFun | DizVal of (ide * evT) list
 and evFun = ide * exp * evT env;;
 
 (*rts*)
@@ -27,6 +27,9 @@ let typecheck (s: string) (v: evT) : bool = match s with
             | "bool" -> (match v with
                         Bool(_)-> true
                         | _ -> false)
+			| "string" -> (match v with
+						String(_)-> true
+						| _ -> false)
             | _ -> failwith("not a valid type");;
 
 (*funzioni primitive*)
@@ -80,6 +83,7 @@ let non a = if (typecheck "bool" a)
 let rec eval (e: exp) (r: evT env) : evT = match e with
     | Eint x -> Int x
     | Ebool a -> Bool a
+	| Estring s -> String s
     | IsZero x -> iszero (eval x r)
     | Den i -> applyenv r i
     | Prod(x,y) -> prod (eval x r) (eval y r)
@@ -180,10 +184,13 @@ and funCallEv (f: evT) (eArg: evT) (r: evT env): evT =
 (* basico: no let *)
 let env0 = emptyenv Unbound;;
 
-let e1 = FunCall(Fun("y", Sum(Den "y", Eint 1)), Eint 3);;
+(*Dizionario vuoto*)
+let d0 = Diz([]);;
+eval d0 env0;;
 
-eval e1 env0;;
+(*Aggiungo al dizionario*)
+let d1 = Let("myDiz", d0, Let("myDiz2", DizAdd(Den "myDiz", "nome", Estring "Nicola"), Den "myDiz2"));;
+eval d1 env0;;
 
-let e2 = FunCall(Let("x", Eint 2, Fun("y", Sum(Den "y", Den "x"))), Eint 3);;
-
-eval e2 env0;;
+let d2 = Let("myDiz3", d1, Let("myDiz4", DizAdd(Den "myDiz3", "matricola", Eint 546468), Den "myDiz4"));;
+eval d2 env0;;
