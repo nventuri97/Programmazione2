@@ -194,3 +194,15 @@ eval d1 env0;;
 
 let d2 = Let("myDiz3", d1, Let("myDiz4", DizAdd(Den "myDiz3", "matricola", Eint 546468), Den "myDiz4"));;
 eval d2 env0;;
+
+(*Prendo dal dizionario*)
+let d3 = Let("myDiz4", d2, DizRet(Den "myDiz4", "name"));;
+eval d3 env0;;
+
+(*Elimino name dal dizionario*)
+let d3 = Let("myDiz5", d2, DizRem(Den "myDiz4", "name"));;
+eval d3 env0;;
+
+(*Eseguo clear sul dizionario*)
+let d3 = DizClear(Den "myDiz5");;
+eval d3 env0;;
