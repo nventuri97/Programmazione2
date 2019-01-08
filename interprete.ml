@@ -122,7 +122,8 @@ let rec eval (e: exp) (r: evT env) : evT = match e with
                             | _ -> failwith("non dictionary value"))
     | DizRem(e1, id) -> let d = (eval e1 r) in
 	 					(match d with
-							DizVal(ls) -> DizVal(remove id ls)
+							DizVal(ls) -> let ls1 = remove id ls in
+											DizVal(ls1)
 							| _ -> failwith("non dictionary value"))
 	| DizAdd(e1, id, e2) -> let d = (eval e1 r) in
 						(match d with
@@ -204,13 +205,13 @@ eval d2 env0;;
 (*Prendo dal dizionario*)
 let d3 = Let("myDiz4", d2, DizRet(Den "myDiz4", "name"));;
 eval d3 env0;;
-
-(*Elimino name dal dizionario*)
-let d3 = Let("myDiz5", d2, DizRem(Den "myDiz4", "matricola"));;
-eval d3 env0;;
 (*
+(*Elimino name dal dizionario*)
+let d3 = Let("myDiz5", d2, DizRem(Den "myDiz4", "name"));;
+eval d3 env0;;
+
 (*Eseguo clear sul dizionario*)
-let d3 = DizClear(Den "myDiz5");;
+let d3 = DizClear(Den "myDiz4");;
 eval d3 env0;;
 
 let lst = [("nome", Estring "Andrea");("matricola", Eint 555555); ("voto", Eint 30)];;
@@ -218,5 +219,5 @@ let d4 = Diz(lst);;
 eval d4 env0;;
 
 let d5 = Let("MyDiz", d4, ApplyOver(Fun("y", Diff(Den "y", Eint 4)), Den "MyDiz2"));;
-eval d6 env0;;
+eval d5 env0;;
 *)
