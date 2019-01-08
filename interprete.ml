@@ -192,7 +192,7 @@ eval d0 env0;;
 let d1 = Let("myDiz", d0, Let("myDiz2", DizAdd(Den "myDiz", "nome", Estring "Nicola"), Den "myDiz2"));;
 eval d1 env0;;
 
-let d2 = Let("myDiz3", d1, Let("myDiz4", DizAdd(Den "myDiz3", "matricola", Eint 546468), Den "myDiz4"));;
+let d2 = Let("myDiz3", d1, Let("myDiz4", DizAdd(Den "myDiz3", "matricola", Eint 123456), Den "myDiz4"));;
 eval d2 env0;;
 
 (*Prendo dal dizionario*)
@@ -206,3 +206,10 @@ eval d3 env0;;
 (*Eseguo clear sul dizionario*)
 let d3 = DizClear(Den "myDiz5");;
 eval d3 env0;;
+
+let lst = [("nome", Estring "Andrea");("matricola", Eint 555555); ("voto", Eint 30)];;
+let d4 = Diz(lst);;
+eval d5 env0;;
+(*)
+let d5 = Let("MyDiz", d4, ApplyOver(Fun("y", Diff(Den "y", Eint 4)), Den "MyDiz2"));;
+eval d6 env0;;
