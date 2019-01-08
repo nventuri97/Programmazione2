@@ -152,17 +152,23 @@ and evalList (lst: (ide * exp) list) (r: evT env) : (ide * evT) list= match lst 
 
 and lookup (id: ide) (ls: (ide * evT) list) : evT = match ls with
     [] -> Unbound
-    | (id1, x)::ids -> if (id=id1) then x else lookup id ids
+    | (id1, x)::ids -> if (id=id1)
+					   then x
+					   else lookup id ids
     | _ -> failwith("wrong dictionary field")
 
 and remove (id: ide) (ls: (ide * evT) list) : (ide * evT) list = match ls with
 	[] -> []
-	| (id1,x)::ids -> if(id=id1) then ids else (id1,x) :: (remove id ids)
+	| (id1,x)::ids -> if(id=id1)
+					  then ids
+					  else (id1,x) :: (remove id ids)
 	| _ -> failwith("wrong dictionary list")
 
 and inside (id: ide) (ls: (ide * evT) list): bool = match ls with
 	[] -> false
-	| (x,v)::xs -> if(id=x) then true else inside id xs
+	| (x,v)::xs -> if(id=x)
+				   then true
+				   else inside id xs
 	| _ -> failwith("wrong dictionary list")
 
 and apply (f: evT) (ls: (ide * evT) list) (r: evT env): (ide * evT) list = match ls with
@@ -200,16 +206,17 @@ let d3 = Let("myDiz4", d2, DizRet(Den "myDiz4", "name"));;
 eval d3 env0;;
 
 (*Elimino name dal dizionario*)
-let d3 = Let("myDiz5", d2, DizRem(Den "myDiz4", "name"));;
+let d3 = Let("myDiz5", d2, DizRem(Den "myDiz4", "matricola"));;
 eval d3 env0;;
-
+(*
 (*Eseguo clear sul dizionario*)
 let d3 = DizClear(Den "myDiz5");;
 eval d3 env0;;
 
 let lst = [("nome", Estring "Andrea");("matricola", Eint 555555); ("voto", Eint 30)];;
 let d4 = Diz(lst);;
-eval d5 env0;;
-(*)
+eval d4 env0;;
+
 let d5 = Let("MyDiz", d4, ApplyOver(Fun("y", Diff(Den "y", Eint 4)), Den "MyDiz2"));;
 eval d6 env0;;
+*)
