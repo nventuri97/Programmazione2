@@ -231,3 +231,6 @@ eval clear env0;;
 
 let rem = Let("myDiz2", myDiz, DizRem(myDiz, "matricola"));;
 eval rem env0;;
+
+(*let apply = Let("myDiz3", ApplyOver(Fun("y", Diff(Den "y", Eint 4)), rem), Den "myDiz3");;
+eval apply env0;;*)
