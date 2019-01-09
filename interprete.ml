@@ -190,7 +190,7 @@ and funCallEv (f: evT) (eArg: evT) (r: evT env): evT =
 
 (* basico: no let *)
 let env0 = emptyenv Unbound;;
-
+(*
 (*Dizionario vuoto*)
 let d0 = Diz([]);;
 eval d0 env0;;
@@ -205,13 +205,13 @@ eval d2 env0;;
 (*Prendo dal dizionario*)
 let d3 = Let("myDiz4", d2, DizRet(Den "myDiz4", "name"));;
 eval d3 env0;;
-(*
+
 (*Elimino name dal dizionario*)
 let d3 = Let("myDiz5", d2, DizRem(Den "myDiz4", "name"));;
 eval d3 env0;;
 
 (*Eseguo clear sul dizionario*)
-let d3 = DizClear(Den "myDiz4");;
+let d3 = DizClear(Den "myDiz5");;
 eval d3 env0;;
 
 let lst = [("nome", Estring "Andrea");("matricola", Eint 555555); ("voto", Eint 30)];;
@@ -221,3 +221,13 @@ eval d4 env0;;
 let d5 = Let("MyDiz", d4, ApplyOver(Fun("y", Diff(Den "y", Eint 4)), Den "MyDiz2"));;
 eval d5 env0;;
 *)
+
+let lst = [("nome", Estring "Andrea");("matricola", Eint 555555); ("voto", Eint 30)];;
+let myDiz = Diz(lst);;
+eval myDiz env0;;
+
+let clear =Let("myDiz2", DizClear(myDiz), Den "myDiz2");;
+eval clear env0;;
+
+let rem = Let("myDiz2", myDiz, DizRem(myDiz, "matricola"));;
+eval rem env0;;
