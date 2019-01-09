@@ -231,6 +231,27 @@ eval clear env0;;
 
 let rem = Let("myDiz2", myDiz, DizRem(myDiz, "matricola"));;
 eval rem env0;;
+(*
+let applyf = Let("myDiz3", ApplyOver(Fun("y", Diff(Den "y", Eint 4)), rem), Den "myDiz3");;
+eval applyf env0;;
+*)
+let addV = Let("myDiz4", DizAdd(rem, "matricola", Eint 5674839), Den "myDiz4");;
+eval addV env0;;
 
-(*let apply = Let("myDiz3", ApplyOver(Fun("y", Diff(Den "y", Eint 4)), rem), Den "myDiz3");;
-eval apply env0;;*)
+let get = DizRet(addV, "name");;
+eval get env0;;
+
+let myDiz2 = Diz([]);;
+eval myDiz2 env0;;
+
+let addV2 = Let("myDiz2", DizAdd(myDiz2, "name", Estring "Andrea"), Den "myDiz2");;
+eval addV2 env0;;
+
+let addV2 = Let("myDiz2", DizAdd(addV2, "matricola", Eint 1234567), Den "myDiz2");;
+eval addV2 env0;;
+
+let addV2 = Let("myDiz3", DizAdd(addV2, "voto", Eint 22), Den "myDiz3");;
+eval addV2 env0;;
+
+let get2 = DizRet(addV2, "voto");;
+eval get2 env0;;
