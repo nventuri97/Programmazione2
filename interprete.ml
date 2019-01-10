@@ -194,37 +194,6 @@ and funCallEv (f: evT) (eArg: evT) (r: evT env): evT =
 
 (* basico: no let *)
 let env0 = emptyenv Unbound;;
-(*
-(*Dizionario vuoto*)
-let d0 = Diz([]);;
-eval d0 env0;;
-
-(*Aggiungo al dizionario*)
-let d1 = Let("myDiz", d0, Let("myDiz2", DizAdd(Den "myDiz", "nome", Estring "Nicola"), Den "myDiz2"));;
-eval d1 env0;;
-
-let d2 = Let("myDiz3", d1, Let("myDiz4", DizAdd(Den "myDiz3", "matricola", Eint 123456), Den "myDiz4"));;
-eval d2 env0;;
-
-(*Prendo dal dizionario*)
-let d3 = Let("myDiz4", d2, DizRet(Den "myDiz4", "name"));;
-eval d3 env0;;
-
-(*Elimino name dal dizionario*)
-let d3 = Let("myDiz5", d2, DizRem(Den "myDiz4", "name"));;
-eval d3 env0;;
-
-(*Eseguo clear sul dizionario*)
-let d3 = DizClear(Den "myDiz5");;
-eval d3 env0;;
-
-let lst = [("nome", Estring "Andrea");("matricola", Eint 555555); ("voto", Eint 30)];;
-let d4 = Diz(lst);;
-eval d4 env0;;
-
-let d5 = Let("MyDiz", d4, ApplyOver(Fun("y", Diff(Den "y", Eint 4)), Den "MyDiz2"));;
-eval d5 env0;;
-*)
 
 let lst = [("nome", Estring "Andrea");("matricola", Eint 555555); ("voto", Eint 30)];;
 let myDiz = Diz(lst);;
@@ -256,6 +225,12 @@ eval addV2 env0;;
 
 let addV2 = Let("myDiz3", DizAdd(addV2, "voto", Eint 22), Den "myDiz3");;
 eval addV2 env0;;
+
+let addV2 = Let("myDiz3", DizAdd(addV2, "passato", Ebool true), Den "myDiz3");;
+eval addV2 env0;;
+
+let applyf2 = Let("myDiz4", ApplyOver((y->y && true), addV2), Den "myDiz4");;
+eval applyf2 env0;;
 
 let get2 = DizRet(addV2, "voto");;
 eval get2 env0;;
