@@ -232,5 +232,11 @@ eval addV2 env0;;
 let applyf2 = Let("myDiz4", ApplyOver(Fun("y", And(Den "y", Ebool true)), addV2), Den "myDiz4");;
 eval applyf2 env0;;
 
+let addV3 = Let("myDiz5", DizAdd(addV2, "name", Estring "Marco"), Den "myDiz5");;
+eval addV3 env0;;
+
+let applyf3 = Let("myDiz5", ApplyOver(Fun("x", Sum(Den "x", Eint 2)), addV3), Den "myDiz5");;
+eval applyf3 env0;;
+
 let get2 = DizRet(addV2, "voto");;
 eval get2 env0;;
