@@ -229,7 +229,7 @@ eval addV2 env0;;
 let addV2 = Let("myDiz3", DizAdd(addV2, "passato", Ebool true), Den "myDiz3");;
 eval addV2 env0;;
 
-let applyf2 = Let("myDiz4", ApplyOver((y->y && true), addV2), Den "myDiz4");;
+let applyf2 = Let("myDiz4", ApplyOver(Fun("y", And(Den "y", Ebool true)), addV2), Den "myDiz4");;
 eval applyf2 env0;;
 
 let get2 = DizRet(addV2, "voto");;
