@@ -15,7 +15,8 @@ let applyenv (r: 't env) (i: ide) = r i;;
 let bind (r: 't env) (i:ide) (v: 't) = function x -> if x = i then v else applyenv r i;;
 
 (* tipi esprimibili *)
-type evT = Int of int | Bool of bool | String of string | Unbound | FunVal of evFun | RecFunVal of ide * evFun | DizVal of (ide * evT) list
+type evT = Int of int | Bool of bool | String of string | Unbound | FunVal of evFun | RecFunVal of ide * evFun |
+		   DizVal of (ide * evT) list
 and evFun = ide * exp * evT env;;
 
 (*rts*)
@@ -174,7 +175,10 @@ and inside (id: ide) (ls: (ide * evT) list): bool = match ls with
 
 and apply (f: evT) (ls: (ide * evT) list) (r: evT env): (ide * evT) list = match ls with
 	[] -> []
-	| (id,v)::ids -> (id, funCallEv f v r) :: apply f ids r
+	| (id,v)::ids -> if (typecheck "int" f) && (typecheck "int" v) then (id, funCallEv f v r) :: apply f ids r
+					 else if (typecheck "string" f) && (typecheck "string" v) then (id, funCallEv f v r) :: apply f ids r
+					 else if (typecheck "bool" f) && (typecheck "bool" v) then (id, funCallEv f v r) :: apply f ids r
+					 else (id,v) :: apply f ids r
 	| _ -> failwith("wrong dictionary list")
 
 and funCallEv (f: evT) (eArg: evT) (r: evT env): evT =
@@ -231,10 +235,10 @@ eval clear env0;;
 
 let rem = Let("myDiz2", myDiz, DizRem(myDiz, "matricola"));;
 eval rem env0;;
-(*
+
 let applyf = Let("myDiz3", ApplyOver(Fun("y", Diff(Den "y", Eint 4)), rem), Den "myDiz3");;
 eval applyf env0;;
-*)
+
 let addV = Let("myDiz4", DizAdd(rem, "matricola", Eint 5674839), Den "myDiz4");;
 eval addV env0;;
 
