@@ -197,31 +197,40 @@ and funCallEv (f: evT) (eArg: evT) (r: evT env): evT =
 (* basico: no let *)
 let env0 = emptyenv Unbound;;
 
+(*Creazione dizionario non vuoto*)
 let lst = [("nome", Estring "Andrea");("matricola", Eint 555555); ("voto", Eint 30)];;
 let myDiz = Diz(lst);;
 eval myDiz env0;;
 
+(*Clear di myDiz*)
 let clear =Let("myDiz2", DizClear(myDiz), Den "myDiz2");;
 eval clear env0;;
 
+(*Remove nome da myDiz*)
 let rem = Let("myDiz2", myDiz, DizRem(myDiz, "nome"));;
 eval rem env0;;
 
+(*Applico a myDiz f: y -> y-4*)
 let applyf = Let("myDiz3", ApplyOver(Fun("y", Diff(Den "y", Eint 4)), rem), Den "myDiz3");;
 eval applyf env0;;
 
+(*Aggiungo a rem un identificatore nome con valore Giovanni*)
 let addV = Let("myDiz4", DizAdd(rem, "nome", Estring "Giovanni"), Den "myDiz4");;
 eval addV env0;;
 
+(*Restituisco il valore del nome preso dal dizionario addV*)
 let get = DizRet(addV, "nome");;
 eval get env0;;
 
+(*Creo un nuovo dizionario vuoto, myDiz2*)
 let myDiz2 = Diz([]);;
 eval myDiz2 env0;;
 
+(*Aggiungo a myDiz2 l'identificatore nome*)
 let addV2 = Let("myDiz2", DizAdd(myDiz2, "nome", Estring "Andrea"), Den "myDiz2");;
 eval addV2 env0;;
 
+(*Aggiungo al dizionario addV2 l'identificatore matricola, voto, passato con i relativi valori*)
 let addV2 = Let("myDiz2", DizAdd(addV2, "matricola", Eint 1234567), Den "myDiz2");;
 eval addV2 env0;;
 
@@ -231,14 +240,18 @@ eval addV2 env0;;
 let addV2 = Let("myDiz3", DizAdd(addV2, "passato", Ebool false), Den "myDiz3");;
 eval addV2 env0;;
 
+(*Applico a addV2 la funzione Or(y,true)*)
 let applyf2 = Let("myDiz4", ApplyOver(Fun("y", Or(Den "y", Ebool true)), addV2), Den "myDiz4");;
 eval applyf2 env0;;
 
+(*Aggiungo ad addV2 un identificatore nome, ma essendo già presente sostiuirà con il suo valore l'identificatore precedente*)
 let addV3 = Let("myDiz5", DizAdd(addV2, "nome", Estring "Marco"), Den "myDiz5");;
 eval addV3 env0;;
 
+(*Applico al dizionario addV3 la funzinoe x->x+2*)
 let applyf3 = Let("myDiz5", ApplyOver(Fun("x", Sum(Den "x", Eint 2)), addV3), Den "myDiz5");;
 eval applyf3 env0;;
 
-let get2 = DizRet(addV2, "voto");;
+(*Restituisco il valore del voto dal dizionario addV3*)
+let get2 = DizRet(addV3, "voto");;
 eval get2 env0;;
