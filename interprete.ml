@@ -175,10 +175,7 @@ and inside (id: ide) (ls: (ide * evT) list): bool = match ls with
 
 and apply (f: evT) (ls: (ide * evT) list) (r: evT env): (ide * evT) list = match ls with
 	[] -> []
-	| (id,v)::ids -> if (typecheck "int" f) && (typecheck "int" v) then (id, funCallEv f v r) :: apply f ids r
-					 else if (typecheck "string" f) && (typecheck "string" v) then (id, funCallEv f v r) :: apply f ids r
-					 else if (typecheck "bool" f) && (typecheck "bool" v) then (id, funCallEv f v r) :: apply f ids r
-					 else (id,v) :: apply f ids r
+	| (id,v)::ids -> (id, funCallEv f v r) :: apply f ids r
 	| _ -> failwith("wrong dictionary list")
 
 and funCallEv (f: evT) (eArg: evT) (r: evT env): evT =
@@ -202,22 +199,22 @@ eval myDiz env0;;
 let clear =Let("myDiz2", DizClear(myDiz), Den "myDiz2");;
 eval clear env0;;
 
-let rem = Let("myDiz2", myDiz, DizRem(myDiz, "matricola"));;
+let rem = Let("myDiz2", myDiz, DizRem(myDiz, "nome"));;
 eval rem env0;;
 
 let applyf = Let("myDiz3", ApplyOver(Fun("y", Diff(Den "y", Eint 4)), rem), Den "myDiz3");;
 eval applyf env0;;
 
-let addV = Let("myDiz4", DizAdd(rem, "matricola", Eint 5674839), Den "myDiz4");;
+let addV = Let("myDiz4", DizAdd(rem, "nome", Estring "Giovanni"), Den "myDiz4");;
 eval addV env0;;
 
-let get = DizRet(addV, "name");;
+let get = DizRet(addV, "nome");;
 eval get env0;;
 
 let myDiz2 = Diz([]);;
 eval myDiz2 env0;;
 
-let addV2 = Let("myDiz2", DizAdd(myDiz2, "name", Estring "Andrea"), Den "myDiz2");;
+let addV2 = Let("myDiz2", DizAdd(myDiz2, "nome", Estring "Andrea"), Den "myDiz2");;
 eval addV2 env0;;
 
 let addV2 = Let("myDiz2", DizAdd(addV2, "matricola", Eint 1234567), Den "myDiz2");;
@@ -226,13 +223,13 @@ eval addV2 env0;;
 let addV2 = Let("myDiz3", DizAdd(addV2, "voto", Eint 22), Den "myDiz3");;
 eval addV2 env0;;
 
-let addV2 = Let("myDiz3", DizAdd(addV2, "passato", Ebool true), Den "myDiz3");;
+let addV2 = Let("myDiz3", DizAdd(addV2, "passato", Ebool false), Den "myDiz3");;
 eval addV2 env0;;
 
-let applyf2 = Let("myDiz4", ApplyOver(Fun("y", And(Den "y", Ebool true)), addV2), Den "myDiz4");;
+let applyf2 = Let("myDiz4", ApplyOver(Fun("y", Or(Den "y", Ebool true)), addV2), Den "myDiz4");;
 eval applyf2 env0;;
 
-let addV3 = Let("myDiz5", DizAdd(addV2, "name", Estring "Marco"), Den "myDiz5");;
+let addV3 = Let("myDiz5", DizAdd(addV2, "nome", Estring "Marco"), Den "myDiz5");;
 eval addV3 env0;;
 
 let applyf3 = Let("myDiz5", ApplyOver(Fun("x", Sum(Den "x", Eint 2)), addV3), Den "myDiz5");;
