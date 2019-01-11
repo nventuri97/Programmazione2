@@ -144,7 +144,7 @@ let rec eval (e: exp) (r: evT env) : evT = match e with
 												DizVal(ls1)
 							| _-> failwith("non dictionary value")
 
-
+(*Funzione per applicare eval alla lista di espressioni in un ambiente r*)
 and evalList (lst: (ide * exp) list) (r: evT env) : (ide * evT) list= match lst with
     | [] -> []
     | (x,y)::xs -> (match (x,y) with
@@ -152,6 +152,7 @@ and evalList (lst: (ide * exp) list) (r: evT env) : (ide * evT) list= match lst 
                 | _ -> failwith("non dictionary value"))
     | _ -> failwith("wrong dictionary list")
 
+(*Funzione che ricerca un valore all'interno della lista dato un identificatore*)
 and lookup (id: ide) (ls: (ide * evT) list) : evT = match ls with
     [] -> Unbound
     | (id1, x)::ids -> if (id=id1)
@@ -159,6 +160,7 @@ and lookup (id: ide) (ls: (ide * evT) list) : evT = match ls with
 					   else lookup id ids
     | _ -> failwith("wrong dictionary field")
 
+(*Funzione che rimuove un elemento dalla lista dato un identificatore*)
 and remove (id: ide) (ls: (ide * evT) list) : (ide * evT) list = match ls with
 	[] -> []
 	| (id1,x)::ids -> if(id=id1)
@@ -166,6 +168,7 @@ and remove (id: ide) (ls: (ide * evT) list) : (ide * evT) list = match ls with
 					  else (id1,x) :: (remove id ids)
 	| _ -> failwith("wrong dictionary list")
 
+(*Funzione per verificare se un Identificatore è all'interno della lista o meno*)
 and inside (id: ide) (ls: (ide * evT) list): bool = match ls with
 	[] -> false
 	| (x,v)::xs -> if(id=x)
@@ -173,11 +176,13 @@ and inside (id: ide) (ls: (ide * evT) list): bool = match ls with
 				   else inside id xs
 	| _ -> failwith("wrong dictionary list")
 
+(*funzione per applicare la funzione passata come argomento alla lista nell'ambiente r *)
 and apply (f: evT) (ls: (ide * evT) list) (r: evT env): (ide * evT) list = match ls with
 	[] -> []
 	| (id,v)::ids -> (id, funCallEv f v r) :: apply f ids r
 	| _ -> failwith("wrong dictionary list")
 
+(*Chiamata di funzione a cui passo la funzione e l'argomento già valutati nell'ambiente*)
 and funCallEv (f: evT) (eArg: evT) (r: evT env): evT =
 	let fClosure = f in
 		(match fClosure with
