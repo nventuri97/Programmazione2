@@ -80,6 +80,9 @@ let non a = if (typecheck "bool" a)
                     | Bool(false) -> Bool(true))
             else failwith("Type error");;
 
+let hd (lst: ('a*'b) list): ('a * 'b) = match lst with
+	(x,v)::xs -> (x,v);;
+
 (*Interprete*)
 let rec eval (e: exp) (r: evT env) : evT = match e with
     | Eint x -> Int x
@@ -116,7 +119,9 @@ let rec eval (e: exp) (r: evT env) : evT = match e with
             		Fun(i, fBody) -> let r1 = (bind r f (RecFunVal(f, (i, fBody, r)))) in
                          			                eval letBody r1 |
             		_ -> failwith("non functional def"))
-    | Diz(lst) -> DizVal(evalList lst r)
+    | Diz(lst) -> if(lst=[]) then DizVal([])
+				  else let ls = nodup (hd lst) lst in
+						DizVal(evalList ls r)
     | DizRet(e1, id) -> let d = (eval e1 r) in
                         (match d with
                             DizVal(ls) -> lookup id ls
@@ -151,6 +156,10 @@ and evalList (lst: (ide * exp) list) (r: evT env) : (ide * evT) list= match lst 
                 (id, arg) -> (id, eval arg r) :: evalList xs r
                 | _ -> failwith("non dictionary value"))
     | _ -> failwith("wrong dictionary list")
+
+(*Funzione che rimuove identificatori duplicati all'interno di una lista*)
+and nodup ((h,t): ide * exp) (lst: (ide * exp) list) : (ide * exp) list = match lst with
+	(x,v)::xs -> if(x=h) then xs else nodup (h,t) xs
 
 (*Funzione che ricerca un valore all'interno della lista dato un identificatore*)
 and lookup (id: ide) (ls: (ide * evT) list) : evT = match ls with
@@ -198,7 +207,7 @@ and funCallEv (f: evT) (eArg: evT) (r: evT env): evT =
 let env0 = emptyenv Unbound;;
 
 (*Creazione dizionario non vuoto*)
-let lst = [("nome", Estring "Andrea");("matricola", Eint 555555); ("voto", Eint 30)];;
+let lst = [("nome", Estring "Andrea");("matricola", Eint 555555); ("voto", Eint 30); ("nome", Estring "Carlo")];;
 let myDiz = Diz(lst);;
 eval myDiz env0;;
 
