@@ -184,7 +184,7 @@ and inside (id: ide) (ls: (ide * evT) list): bool = match ls with
 				   else inside id xs
 	| _ -> failwith("wrong dictionary list")
 
-(*funzione per applicare la funzione passata come argomento alla lista nell'ambiente r *)
+(*Funzione per applicare la funzione passata come argomento alla lista nell'ambiente r *)
 and apply (f: evT) (ls: (ide * evT) list) (r: evT env): (ide * evT) list = match ls with
 	[] -> []
 	| (id,v)::ids -> (id, funCallEv f v r) :: apply f ids r
@@ -202,7 +202,6 @@ and funCallEv (f: evT) (eArg: evT) (r: evT env): evT =
 
 (* =================  TESTS  ================= *)
 
-(* basico: no let *)
 let env0 = emptyenv Unbound;;
 
 (*Creazione dizionario non vuoto*)
@@ -218,9 +217,13 @@ eval clear env0;;
 let rem = Let("myDiz2", myDiz, DizRem(myDiz, "nome"));;
 eval rem env0;;
 
-(*Applico a myDiz f: y -> y-4*)
+(*Applico a rem la funzione*)
 let applyf = Let("myDiz3", ApplyOver(Fun("y", Diff(Den "y", Eint 4)), rem), Den "myDiz3");;
 eval applyf env0;;
+
+(*Applico a applyf la funzione*)
+let applyf2 = Let("myDiz4", ApplyOver(Fun("y", Ifthenelse(IsZero(Den "y"), Sum(Den "y", Eint 10), Minus(Den "y"))), applyf), Den "myDiz4");;
+eval applyf2 env0;;
 
 (*Aggiungo a rem un identificatore nome con valore Giovanni*)
 let addV = Let("myDiz4", DizAdd(rem, "nome", Estring "Giovanni"), Den "myDiz4");;
@@ -238,19 +241,12 @@ eval myDiz2 env0;;
 let addV2 = Let("myDiz2", DizAdd(myDiz2, "nome", Estring "Andrea"), Den "myDiz2");;
 eval addV2 env0;;
 
-(*Aggiungo al dizionario addV2 l'identificatore matricola, voto, passato con i relativi valori*)
+(*Aggiungo al dizionario addV2 l'identificatore matricola, voto con i relativi valori*)
 let addV2 = Let("myDiz2", DizAdd(addV2, "matricola", Eint 1234567), Den "myDiz2");;
 eval addV2 env0;;
 
 let addV2 = Let("myDiz3", DizAdd(addV2, "voto", Eint 22), Den "myDiz3");;
 eval addV2 env0;;
-
-let addV2 = Let("myDiz3", DizAdd(addV2, "passato", Ebool false), Den "myDiz3");;
-eval addV2 env0;;
-
-(*Applico a addV2 la funzione Or(y,true)*)
-let applyf2 = Let("myDiz4", ApplyOver(Fun("y", Or(Den "y", Ebool true)), addV2), Den "myDiz4");;
-eval applyf2 env0;;
 
 (*Aggiungo ad addV2 un identificatore nome, ma essendo già presente sostiuirà con il suo valore l'identificatore precedente*)
 let addV3 = Let("myDiz5", DizAdd(addV2, "nome", Estring "Marco"), Den "myDiz5");;
